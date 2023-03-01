@@ -1,6 +1,7 @@
+
 {
-  "name": "YaCoin",
+  "name": "YasCoin",
   "symbol": "YRC",
-  "description": "My first test token",
-  "image": "https://drive.google.com/file/d/1lR_LfyVIQA8QQoPVasmLpGmOY35Vj89h/view?usp=share_link"
-}
+  "description": "This is a test token!",
+  "image": "https://i.postimg.cc/fL2pZFRG/chats.png", 
+};
