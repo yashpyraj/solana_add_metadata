@@ -1,32 +1,34 @@
-const { Connection, PublicKey } = require('@solana/web3.js');
+const anchor = require('@project-serum/anchor');
+import { Metadata } from "@metaplex-foundation/js";
 
-// Connect to the Solana network
-const connection = new Connection('https://api.devnet.solana.com');
+const rpcUrl = 'https://api.devnet.solana.com';
+const connection = new anchor.web3.Connection(rpcUrl);
 
-// Define the token address and metadata URL
-const tokenAddress = new PublicKey('HVDWSWMwRtUhc7fLS2bsh8QqaKuPpVQbS16H3JNMnTLF');
-const metadataUrl = 'https://example.com/my-metadata.json';
+const metadataAccount = new anchor.web3.Account();
+const mintAddress = '<your token address here>'; // Replace with your token's address
+const metadata = new Metadata({
+    data: {
+        name: 'YaCoin', // Replace with the name of your token
+        symbol: 'YRC', // Replace with the symbol of your token
+        uri: 'https://github.com/yashpyraj/solana_add_metadata/blob/main/metadata.json', // Replace with the URL of your token's metadata file
+    },
+    primarySaleHappened: false,
+}, metadataAccount.publicKey);
 
-// Get the token account's owner address
-const tokenAccountInfo = await connection.getAccountInfo(tokenAddress);
-const ownerAddress = tokenAccountInfo.owner;
+async function main() {
+    // Add metadata to the token
+    const tokenMint = new anchor.web3.PublicKey(mintAddress);
+    const metadataAccountAddress = metadataAccount.publicKey;
+    await anchor.program.token.metadata.create(
+        metadata,
+        tokenMint,
+        metadataAccountAddress,
+        metadataAccount
+    );
 
-// Create the metadata account
-const metadataAccount = new Account();
+    console.log('Metadata added successfully');
+}
 
-// Define the metadata instruction
-const metadataProgramId = new PublicKey('metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s');
-const metadataInstruction = TokenMetadata.createMetadataInstruction(
-    metadataProgramId,
-    metadataAccount.publicKey,
-    ownerAddress,
-    tokenAddress,
-    metadataUrl,
-    null
-);
-
-// Sign and send the transaction
-const transaction = new Transaction().add(metadataInstruction);
-await sendAndConfirmTransaction(connection, transaction, [metadataAccount]);
-
-console.log('Metadata added successfully!');
+main().catch((error) => {
+    console.error(error);
+});
